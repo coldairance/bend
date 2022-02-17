@@ -53,9 +53,7 @@ public class LoginController {
         }else if(!user.getPassword() .equals(password)) {
             result.error(ResultCode.USER_CREDENTIALS_ERROR);
         }else {
-            result.ok();
             session.setAttribute("login",true);
-            session.setAttribute("current",user);
             result.ok();
         }
 

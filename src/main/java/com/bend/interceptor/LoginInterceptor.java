@@ -18,7 +18,6 @@ public class LoginInterceptor implements HandlerInterceptor {
 
         HttpSession session = request.getSession();
         Object login = session.getAttribute("login");
-
         if(login == null) {
             Result result = new Result();
             result.error(ResultCode.USER_NOT_LOGIN);
