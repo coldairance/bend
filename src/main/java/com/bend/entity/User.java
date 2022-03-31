@@ -10,6 +10,8 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 public class User {
+    
+    @TableId(value = "username")
     private String username;
     private String password;
 }
