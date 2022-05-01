@@ -41,7 +41,7 @@ public class GetController {
     private String md_path;
 
     @GetMapping("end")
-    public Result getArticle(
+    public Result getEnd(
             HttpServerRequest request,
             HttpServletResponse response,
             @RequestParam Integer page,
@@ -50,6 +50,30 @@ public class GetController {
             @RequestParam Integer belong
     )  {
         QueryWrapper<Article> wrapper = new QueryWrapper<Article>().orderByDesc("update_time");
+        if(type!=0) {
+            wrapper.eq("type",type);
+        }
+        if(type==1&&belong>0) {
+            wrapper.eq("belong",belong);
+        }
+        Page<Article> current = articleMapper.selectPage(new Page<Article>(page, size), wrapper);
+        Result ret = new Result().ok();
+        ret.add("records", current.getRecords())
+                .add("total", current.getTotal());
+
+        return ret;
+    }
+
+    @GetMapping("front")
+    public Result getFront(
+            HttpServerRequest request,
+            HttpServletResponse response,
+            @RequestParam Integer page,
+            @RequestParam Integer size,
+            @RequestParam Integer type,
+            @RequestParam Integer belong
+    )  {
+        QueryWrapper<Article> wrapper = new QueryWrapper<Article>().orderByDesc("update_time").eq("state",1);
         if(type!=0) {
             wrapper.eq("type",type);
         }
