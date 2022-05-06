@@ -42,7 +42,7 @@ public class UpdateController {
         JSONObject jsonObject = JSONUtil.parseObj(data);
         String aid = jsonObject.getStr("aid");
         String raw = jsonObject.getStr("content");
-        String path = md_path+aid+".md";
+        String path = articleMapper.selectById(aid).getPath();
 
         File file = new File(path);
         Result result = new Result();

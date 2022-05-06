@@ -10,6 +10,7 @@ import com.bend.entity.Article;
 import com.bend.entity.Comment;
 import com.bend.utils.Result;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -29,6 +30,10 @@ public class AddController {
     @Autowired
     private CommentMapper commentMapper;
 
+    // md文件路径
+    @Value("${path.md}")
+    private String md_path;
+
 
     @PostMapping("article")
     public Result addArticle(
@@ -43,10 +48,12 @@ public class AddController {
         String second = jsonObject.getStr("second");
         Integer belong = jsonObject.getInt("belong");
         Integer type = jsonObject.getInt("type");
+        String path = md_path+article.getAid()+".md";
         article.setFirst(first);
         article.setSecond(second);
         article.setBelong(belong);
         article.setType(type);
+        article.setPath(path);
 
         articleMapper.insert(article);
 
