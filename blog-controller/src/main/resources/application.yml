@@ -1,0 +1,43 @@
+server:
+  port: 8081
+# 域名
+domain:
+  name: www.coldairance.com
+spring:
+  servlet:
+    multipart:
+      # 允许上传的文件最大值
+      max-file-size: 50MB
+      # 设置总上传数据总大小
+      max-request-size: 50MB
+  # mysql配置
+  datasource:
+    username: root
+    password: 132574
+    url: jdbc:mysql://localhost:3306/blog?useSSL=true&useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  # redis配置
+  redis:
+    host: 127.0.0.1
+    port: 6379
+  # 事务配置
+  transaction:
+    rollback-on-commit-failure: true
+# mybatis配置
+mybatis:
+  mapper-locations: classpath:/mybatis/mapper/*Mapper.xml
+# 自定义 jwt 密钥
+jwt:
+  key: "F!$@#%#@$%GDSFGSDgsdf????$@#%@%@#$GDFSGDSFGDS"
+  expiration-time:
+    key: 3
+    others: 10
+# 图片url
+picture:
+  mask: picture/
+  real:
+    common: /home/mutou/apps/blog/files/pictures/common-picture/
+    info:  /home/mutou/apps/blog/files/pictures/info-picture/
+# md文件
+md:
+  real: /home/mutou/apps/blog/files/md/

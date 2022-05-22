@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.blog.mapper.UserMapper">
+    <insert id="insertRoleByUserName">
+        insert into user_role(user_id, role_id)
+        SELECT u.user_id,r.role_id
+        from user u,role r
+        where u.user_name=#{username} and r.role_name = #{rolename};
+    </insert>
+    <insert id="insertAuthorityByRoleName">
+        insert into role_authority(role_id, authority_id)
+        SELECT r.role_id,a.authority_id
+        from role r, authority a
+        where r.role_name=#{rolename} and a.authority_id = #{authorityname};
+    </insert>
+    <insert id="insertArticalByUsername" >
+        insert into artical(user_id,md_path,title,`description`,status,type,special_id)
+        select u.user_id,#{path},#{title},#{description},#{status},#{type},#{SpecialID}
+        from user u
+        where u.user_name=#{username}
+    </insert>
+    <insert id="insert">
+        insert into user(user_name, user_pwd,user_header,user_background)
+        values (#{username},#{pwd},'http://www.coldairance.com/picture/common-header.png','http://www.coldairance.com/picture/common-back.png')
+    </insert>
+    <insert id="insertRole">
+        insert into user_role(user_id, role_id)
+        values(#{userID},#{roleID})
+    </insert>
+    <update id="updateHeaderByUsername">
+        update user
+        set user_header = #{url}
+        where user_name = #{username}
+    </update>
+    <update id="updateBackgroundByUsername">
+        update user
+        set user_background = #{url}
+        where user_name = #{username}
+    </update>
+    <update id="updateUser" parameterType="com.blog.pojo.po.User">
+        update user
+        <set>
+            <if test="userName != null">user_name=#{userName},</if>
+            <if test="userPwd != null">user_pwd=#{userPwd},</if>
+            user_email=#{userEmail},user_phone=#{userPhone}
+        </set>
+        where user_id=#{userId}
+    </update>
+
+    <delete id="deleteByUserName">
+        delete from user
+        where user_name = #{username};
+    </delete>
+    <delete id="deleteUsersByUserNames">
+        delete from user where user_name in
+        <foreach collection="list" open="(" close=")" item="item" separator=",">
+            #{item}
+        </foreach>
+    </delete>
+
+
+    <select id="selectRolesByUserName" resultType="com.blog.pojo.po.Role">
+        select r.*
+        from user u
+        left join user_role ur on u.user_id = ur.user_id
+        left join role r on ur.role_id = r.role_id
+        where user_name = #{username};
+    </select>
+    <select id="selectAuthorityNameByRoleName" resultType="java.lang.String">
+        select a.authority_name
+        from role r
+        left join role_authority ra on r.role_id = ra.role_id
+        left join authority a on ra.authority_id = a.authority_id
+        where role_name = #{rolename};
+    </select>
+    <select id="selectUserByFuzzy" resultType="java.lang.String">
+        SELECT user_name FROM
+            `user` u  LEFT JOIN user_role ur on u.user_id=ur.user_id
+                    left join role r on ur.role_id = r.role_id
+        where u.user_name like concat('%',#{username},'%')
+        GROUP BY u.user_id HAVING(min(r.role_code) > #{rolecode})
+    </select>
+    <select id="selectUsernamesByOffset" resultType="java.lang.String">
+        SELECT user_name FROM
+            `user` u  LEFT JOIN user_role ur on u.user_id=ur.user_id
+                        left join role r on ur.role_id = r.role_id
+        GROUP BY u.user_id HAVING(min(r.role_code) > #{rolecode})
+        limit #{offset},#{size}
+    </select>
+    <select id="selectSize" resultType="java.lang.Integer">
+        SELECT count(*) FROM
+            (
+                SELECT u.user_name from
+                    `user` u  LEFT JOIN user_role ur on u.user_id=ur.user_id
+                              left join role r on ur.role_id = r.role_id
+                GROUP BY u.user_id HAVING(min(r.role_code) > #{rolecode})
+            ) as t
+    </select>
+    <select id="selectRoleCodeByUsername" resultType="java.lang.Integer">
+        SELECT MIN(r.role_code)
+        FROM user u
+                 LEFT JOIN user_role ur on u.user_id = ur.user_id
+                 LEFT JOIN role r on ur.role_id = r.role_id
+        WHERE u.user_name = #{username}
+    </select>
+    <select id="selectAuthoritiesByUsername" resultType="java.lang.String">
+        SELECT DISTINCT a.authority_name
+        FROM `user` u
+                 LEFT JOIN user_role ur on u.user_id = ur.user_id
+                 LEFT JOIN role r on ur.role_id = r.role_id
+                 LEFT JOIN role_authority ra on r.role_id = ra.role_id
+                 LEFT JOIN authority a on ra.authority_id = a.authority_id
+        WHERE u.user_name = #{username}
+    </select>
+    <select id="selectRolesByUsernames" resultType="java.util.HashMap">
+        SELECT DISTINCT u.user_name as username ,r.role_name as rolename
+        FROM `user` u
+                 LEFT JOIN user_role ur on u.user_id = ur.user_id
+                 LEFT JOIN role r on ur.role_id = r.role_id
+        WHERE u.user_name in
+        <foreach collection="list" item="userid" open="(" close=")" separator=",">
+            #{userid}
+        </foreach>
+    </select>
+    <select id="selectLastInsertId" resultType="java.lang.Integer">
+        select LAST_INSERT_ID();
+    </select>
+    <select id="selectHeaderByUsername" resultType="java.lang.String">
+        select user_header
+        from user
+        where user_name = #{username};
+    </select>
+    <select id="selectBackgroundByUsername" resultType="java.lang.String">
+        select user_background
+        from user
+        where user_name = #{username};
+    </select>
+    <select id="selectUserByUserName" resultType="com.blog.pojo.po.User">
+        select user_id as userId,user_name as userName,user_pwd as userPwd,user_email as userEmail,user_phone as userPhone,user_header as userHeader,user_background as userBackground,create_time as createTime,modify_time as modifyTime
+        from user
+        where user_name=#{username};
+    </select>
+    <select id="checkUserName" resultType="java.lang.Boolean">
+        select count(*)
+        from user
+        where user_name=#{username};
+    </select>
+    <select id="selectIDByUserName" resultType="java.lang.Integer">
+        select user_id
+        from user
+        where user_name=#{username};
+    </select>
+    <select id="selectPersonInfoByUserName" resultType="com.blog.pojo.vo.UserInfo">
+        SELECT articalNumber,viewNumber,header,background,sum(t.special_id is not null) as specialNumber
+        from
+            (SELECT sum(a.status > 0) as articalNumber, sum(a.view) as viewNumber,u.user_header as header,u.user_background as background,s.special_id
+             FROM   user u left join artical a on u.user_id = a.user_id
+                           left join special s on u.user_id = s.user_id
+             where user_name=#{username}
+             GROUP BY s.special_id) as t
+    </select>
+    <select id="selectRoles" resultType="com.blog.pojo.po.Role">
+        select role_id as roleID,role_name as roleName
+        from role;
+    </select>
+</mapper>

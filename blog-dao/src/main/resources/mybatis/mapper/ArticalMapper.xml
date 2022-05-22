@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.blog.mapper.ArticalMapper">
+    <insert id="insertPicturesByArticalID">
+        insert into picture(artical_id,pic_url)
+        values
+        <foreach collection="urls" item="url" separator=",">
+            (#{id},#{url})
+        </foreach>
+    </insert>
+    <update id="updateArticalByArticalID" parameterType="com.blog.pojo.po.Artical">
+        update artical
+        <set>
+            <if test="title != null">title=#{title},</if>
+            `description`=#{description},`status`=#{status},type=#{type},special_id=#{specialID},modify_time=CURRENT_TIME
+        </set>
+        where artical_id=#{articalID}
+    </update>
+    <delete id="deletePicturesByArticalID">
+        delete
+        from picture
+        where artical_id = #{id} and pic_url in
+        <foreach collection="urls" item="url" open="(" close=")" separator=",">
+            #{url}
+        </foreach>
+    </delete>
+    <delete id="deleteArticalByArticalID">
+        delete
+        from artical
+        where artical_id=#{id}
+    </delete>
+    <select id="selectPicturesByArticalID" resultType="java.lang.String">
+        select pic_url
+        from picture
+        where artical_id = #{id}
+    </select>
+    <select id="selectMdByArticalID" resultType="com.blog.pojo.vo.MdInfo">
+        select a.md_path as path,a.title as title,a.description as description,a.status as status,a.view as view,u.user_name as username,a.type as type,s.title as specialTitle
+        from artical a left join user u on a.user_id = u.user_id
+        left join special s on s.special_id=a.special_id
+        where artical_id=#{id}
+    </select>
+    <select id="selectUserInfoByArticalID" resultType="com.blog.pojo.vo.UserInfo">
+        select u.user_name as username,u.user_header as header,u.user_background as background
+        from artical a left join user u on a.user_id = u.user_id
+        where a.artical_id=#{id}
+    </select>
+    <select id="selectArticalsByLocal" resultType="com.blog.pojo.vo.ArticalInfo">
+        select
+               u.user_name as username,
+               u.user_header as header,
+               a.artical_id as articalID,
+               a.title as title,
+               a.description as description,
+               a.status as status,
+               a.modify_time as lastModifyTime,
+               a.type as type,
+               s.special_id as specialID
+        from user u right join artical a on u.user_id = a.user_id
+        left join special s on a.special_id = s.special_id
+        where u.user_name=#{username} and a.special_id is null
+        order by a.modify_time DESC
+        limit #{offset},#{size}
+    </select>
+    <select id="selectArticalsByOther" resultType="com.blog.pojo.vo.ArticalInfo">
+        select
+            u.user_name as username,
+            u.user_header as header,
+            a.artical_id as articalID,
+            a.title as title,
+            a.description as description,
+            a.status as status,
+            a.modify_time as lastModifyTime,
+            a.type as type,
+            s.special_id as specialID
+        from user u right join artical a on u.user_id = a.user_id
+                    left join special s on a.special_id = s.special_id
+        where u.user_name=#{username} and a.status > 0 and a.special_id is null
+        order by a.modify_time DESC
+        limit #{offset},#{size}
+    </select>
+    <select id="selectArticalsByDate" resultType="com.blog.pojo.vo.ArticalInfo">
+        select
+            u.user_name as username,
+            u.user_header as header,
+            a.artical_id as articalID,
+            a.title as title,
+            a.description as description,
+            a.status as status,
+            a.modify_time as lastModifyTime,
+            a.type as type,
+            s.special_id as specialID,
+            s.title as specialTitle
+        from user u right join artical a on u.user_id = a.user_id
+                    left join special s on a.special_id = s.special_id
+        where a.status > 0 and a.type='原创'
+        order by a.modify_time DESC
+        limit #{offset},#{size}
+    </select>
+    <select id="selectArticalsForImportant" resultType="com.blog.pojo.vo.ArticalInfo">
+        select
+            u.user_name as username,
+            u.user_header as header,
+            a.artical_id as articalID,
+            a.title as title,
+            a.description as description,
+            a.status as status,
+            a.modify_time as lastModifyTime,
+            a.type as type,
+            s.special_id as specialID,
+            s.title as specialTitle
+        from user u right join artical a on u.user_id = a.user_id
+                    left join special s on a.special_id = s.special_id
+        where a.status > 0 and a.type='置顶'
+        order by a.modify_time DESC
+    </select>
+    <select id="selectUserNameByArticalID" resultType="java.lang.String">
+        select u.user_name
+        from artical a left join user u on a.user_id = u.user_id
+        where artical_id=#{id};
+    </select>
+</mapper>

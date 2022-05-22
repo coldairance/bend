@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.blog.mapper.SpecialMapper">
+
+    <insert id="insertSpecial">
+        insert into special(user_id,title)
+        VALUES((SELECT user_id
+                FROM `user`
+                WHERE user_name=#{username}),#{title})
+    </insert>
+    <update id="updateBackground">
+        update special
+        set background=#{url}
+        where special_id=#{id}
+    </update>
+    <update id="updateSpecialTitle">
+        update special
+        set title=#{title}
+        where special_id=#{id}
+    </update>
+    <delete id="deleteSpecial">
+        delete
+        from special
+        where special_id=#{id}
+    </delete>
+    <select id="selectLastInsertId" resultType="java.lang.Integer">
+        select LAST_INSERT_ID();
+    </select>
+    <select id="selectBackground" resultType="java.lang.String">
+        select background
+        from special
+        where special_id=#{id}
+    </select>
+    <select id="selectSpecialsByUserName" resultType="com.blog.pojo.vo.SpecialInfo">
+        select s.special_id as id,s.title as title,s.background as background
+        from user u right join special s on u.user_id = s.user_id
+        where u.user_name=#{username}
+    </select>
+    <select id="checkSpecialName" resultType="java.lang.Integer">
+        select count(*)
+        from user u left join special s on u.user_id = s.user_id
+        where s.title=#{title} and u.user_name=#{username}
+    </select>
+    <select id="getUserName" resultType="java.lang.String">
+        select u.user_name
+        from special s left join user u on s.user_id = u.user_id
+        where special_id=#{id}
+    </select>
+    <select id="selectArticalsBySpecialID" resultType="com.blog.pojo.vo.ArticalInfo">
+        select a.artical_id as articalID,a.title as title,a.description as description,a.modify_time as lastModifyTime
+        from special s left join artical a on s.special_id = a.special_id
+        where a.special_id=#{id} and a.status > 0
+        order by a.modify_time DESC
+    </select>
+</mapper>
